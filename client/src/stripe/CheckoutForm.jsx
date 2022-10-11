@@ -32,14 +32,15 @@ export const CheckoutForm = ({ amount }) => {
         });
 
         if (response.data.success) {
-          dispatch(clearCart());
-          dispatch(clearAllSeats());
           dispatch(add(response.data.booking));
           console.log("Payment successful!");
           navigate("/success");
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        dispatch(clearCart());
+        dispatch(clearAllSeats());
       }
     } else {
       console.log(error.message);

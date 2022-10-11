@@ -15,13 +15,8 @@ const App = () => {
    * - lock seats on server and redirect to stripe
    * - if seats locked, find locked seats and inform user
    * - update theatre seats in front end
-   * - if success, mark seats as booked and inform user
+   * - if success, update booking status and inform user
    * - if fail, release seats and inform user
-   *
-   * TO DO
-   * - move movies to redux
-   * - save current user bookings in redux and local storage
-   *
    */
   return (
     <>

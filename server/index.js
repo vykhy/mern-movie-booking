@@ -135,6 +135,10 @@ app.post("/pay", async (req, res) => {
       booking: booking,
     });
   } catch (error) {
+    // release seats
+    Booking.findOneAndDelete({
+      _id: mongoose.Types.ObjectId(bookingId),
+    });
     res.json({
       message: "Payment Failed",
       success: false,
