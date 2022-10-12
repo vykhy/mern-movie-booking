@@ -21,12 +21,7 @@ mongoose.connect("mongodb://localhost/cloudville", () => {
 
 // simply returns date in a suitable format for our api call
 function getDateString() {
-  const date = new Date();
-  return {
-    result: `${date.getFullYear()}-${
-      date.getMonth() + 1
-    }-${date.getDate()}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}Z`,
-  };
+  return new Date().toISOString();
 }
 
 // base url of movie api
@@ -39,7 +34,7 @@ const apiAxios = axios.create({
     client: process.env.API_CLIENT,
     "x-api-key": process.env.API_KEY,
     authorization: process.env.AUTHORIZATION_KEY,
-    "device-datetime": getDateString().result,
+    "device-datetime": getDateString(),
     "geo-location": "-22.0;14.0",
     territory: "XX",
   },

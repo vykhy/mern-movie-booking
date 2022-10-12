@@ -3,7 +3,7 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { clearCart } from "../slices/cartReducer";
-import { clearAllSeats } from "../slices/seatsReducer";
+import { clearAllSeats } from "../slices/cartReducer";
 import { add } from "../slices/bookingsReducer";
 import { useNavigate } from "react-router-dom";
 

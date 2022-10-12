@@ -2,36 +2,35 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { clearAllSeats } from "../slices/seatsReducer";
-import { setBookingId, create } from "../slices/cartReducer";
+import { clearAllSeats } from "../slices/cartReducer";
+import { setBookingId, setCartData } from "../slices/cartReducer";
 
-function BookingForm({ date, failedCallback, price, movieName, movieId }) {
+function BookingForm({ failedCallback, price, movieName }) {
   const [name, setName] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   // selected seats
-  const seats = useSelector((state) => state.seats.value);
+
+  const { date, movieId, seats } = useSelector((state) => state.cart.value);
 
   const bookNow = async (e) => {
     e.preventDefault();
 
     // update cart
     dispatch(
-      create({
+      setCartData({
         name,
-        date,
-        seats,
         price: price * seats.length,
-        movie: movieName,
+        movieName,
       })
     );
 
     // initialise booking process
     // we can add an email field to send notifications and the tickets
     const result = await axios.post("http://localhost:5000/init-booking", {
-      seats: seats,
-      name: name,
-      date: date,
+      seats,
+      name,
+      date,
       movie: movieId,
     });
 
@@ -54,6 +53,7 @@ function BookingForm({ date, failedCallback, price, movieName, movieId }) {
     <form onSubmit={(e) => bookNow(e)}>
       <input
         placeholder="Enter your name"
+        required
         type="text"
         name="name"
         className="p-2 font-semibold rounded-sm text-lg"

@@ -14,7 +14,8 @@ function Seat({ booked, seatNo, selected, handleSelect }) {
     <>
       <div
         // toggle from our selected seats
-        onClick={() => !booked && handleSelect()}
+        data-seat={seatNo}
+        onClick={() => !booked && handleSelect(seatNo)}
         className={`m-1 pt-1 text-center text-semibold text-sm text-align-center h-8 w-8 ${dynamic}`}
       >
         {seatNo}{" "}

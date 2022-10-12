@@ -2,19 +2,24 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Seat from "../components/Seat";
-import { addSeat, clearAllSeats, removeSeat } from "../slices/seatsReducer";
 import { useSelector, useDispatch } from "react-redux";
 import MovieDetails from "../components/MovieDetails";
 import BookingForm from "../components/BookingForm";
-import { clearCart } from "../slices/cartReducer";
+import {
+  addSeat,
+  clearCart,
+  setCartData,
+  removeSeat,
+  clearAllSeats,
+} from "../slices/cartReducer";
+import BookingInstructions from "../components/BookingInstructions";
 
 function Movie() {
   const [filmDetails, setFilmDetails] = useState({});
   const [theaterSeats, setTheaterSeats] = useState([]);
-  const [date, setDate] = useState();
   const { id } = useParams();
 
-  const selectedSeats = useSelector((state) => state.seats.value);
+  const { date, seats } = useSelector((state) => state.cart.value);
 
   const dispatch = useDispatch();
 
@@ -22,27 +27,20 @@ function Movie() {
     const result = await axios.get("http://localhost:5000/movie/" + id);
     setFilmDetails(result.data);
 
-    // clear our data when movie changed
+    // clear our data
     dispatch(clearAllSeats());
     dispatch(clearCart());
+
+    // set movie id and booking date
+    dispatch(setCartData({ movieId: id }));
+    dispatch(setCartData({ date: new Date().toISOString().split("T")[0] }));
   }, [id]);
 
   useEffect(() => {
-    // update seats when date changed
-    getSeats();
-    // clear our data when movie changed
+    // clear our data when date changed
     dispatch(clearAllSeats());
-    dispatch(clearCart());
+    getSeats();
   }, [date]);
-
-  // handle toggling seat selection
-  const handleSeatSelect = (seatNo) => {
-    if (selectedSeats.includes(seatNo)) {
-      dispatch(removeSeat(seatNo));
-    } else {
-      dispatch(addSeat(seatNo));
-    }
-  };
 
   // fetch seats data for a specific showing
   const getSeats = async () => {
@@ -54,32 +52,38 @@ function Movie() {
     setTheaterSeats(result.data);
   };
 
+  // handle toggling seat selection
+  const handleSeatSelect = (seatNo) => {
+    if (seats?.includes(seatNo)) {
+      dispatch(removeSeat(seatNo));
+    } else {
+      dispatch(addSeat(seatNo));
+    }
+  };
+
   return (
     <div className="md:flex">
       <div className="w-screen  p-4">
         <MovieDetails filmDetails={filmDetails} />
       </div>
       <div className="w-screen p-4">
-        <p className="font-semibold mb-8 mt-2 text-lg">
-          How to book? <br />
-          1. Select a date <br />
-          2. Choose your seats <br />
-          3. Enter your name <br />
-          4. Complete your payment on the next page <br />
-        </p>
+        <BookingInstructions />
         <p className="font-lg font-bold">Select a date:</p>
-        {/* DATE FOR SHOWING SELECTOR/  */}
+
+        {/* DATE SELECTOR FOR SHOWING   */}
         <form onSubmit={(e) => e.preventDefault()}>
           <input
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => dispatch(setCartData({ date: e.target.value }))}
             className="text-lg p-2"
+            defaultValue={new Date().toISOString().split("T")[0]}
+            min={new Date().toISOString().split("T")[0]}
             type="date"
           />
           <button
             className="rounded-sm bg-blue-600 text-white font-semibold p-2 text-center"
             onClick={getSeats}
           >
-            {theaterSeats.length > 0 ? "Refresh seats" : "Get seats"}
+            Refresh seats
           </button>
         </form>
 
@@ -93,29 +97,27 @@ function Movie() {
               booked={seat === 1}
               seatNo={index + 1}
               handleSelect={() => handleSeatSelect(index + 1)}
-              selected={selectedSeats.includes(index + 1)}
+              selected={seats?.includes(index + 1)}
             />
           ))}
         </div>
         {/* RENDERS BASIC DATA OF SELECTED SEATS AND TOTAL PRICE   */}
         <p className="my-3 text-xl font-semibold">Your seats:</p>
         <div className="flex flex-wrap font-semibold text-lg">
-          {selectedSeats.map((seat) => (
+          {seats?.map((seat) => (
             <div key={seat} className="p-2 mr-2 mb-2 border-1 border-black">
               {seat}{" "}
             </div>
           ))}
         </div>
         <p className="my-3 text-xl font-semibold">
-          Price: Rs {selectedSeats.length * 200}{" "}
+          Price: Rs {seats?.length * 200}{" "}
         </p>
         {/* BOOK NOW  */}
         <BookingForm
-          date={date}
           failedCallback={getSeats}
           price={200}
           movieName={filmDetails?.film_name}
-          movieId={id}
         />
       </div>
       {/*  */}
